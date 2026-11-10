@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniAI - Suporte Encantador com Inteligência Artificial</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        },
+                        whatsapp: '#25D366',
+                        mercadolivre: '#FFE600',
+                        shopee: '#EE4D2D',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
+    </style>
+</head>
+<body class="h-full flex flex-col text-slate-800 dark:text-slate-100 dark:bg-slate-900 transition-colors duration-200">
+
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col border-r border-slate-800 z-20 flex-shrink-0">
+            <!-- Brand Logo -->
+            <div class="h-16 flex items-center px-6 gap-3 border-b border-slate-800">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/30">
+                    <i class="ph-bold ph-sparkle text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white text-lg tracking-tight leading-none">OmniAI</h1>
+                    <span class="text-[10px] text-sky-400 font-semibold tracking-wider uppercase">Suporte PME</span>
+                </div>
+            </div>
+
+            <!-- Client Selector Dropdown -->
+            <div class="p-4 border-b border-slate-800">
+                <label class="text-xs text-slate-400 font-medium mb-1 block">Loja Ativa</label>
+                <select id="storeSelector" class="w-full bg-slate-800 border border-slate-700 text-sm text-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    <option value="fashion">Loja Moda Chic (Shopee/ML)</option>
+                    <option value="tech">Tech Zone Brasil (WhatsApp/ML)</option>
+                    <option value="beauty">Glow Cosméticos (Site/WhatsApp)</option>
+                </select>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-sky-600 text-white">
+                    <i class="ph-duotone ph-chart-line-up text-lg"></i>
+                    <span>Dashboard & KPIs</span>
+                </button>
+
+                <button onclick="switchTab('inbox')" id="nav-inbox" class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <div class="flex items-center gap-3">
+                        <i class="ph-duotone ph-chats-teardrop text-lg"></i>
+                        <span>Caixa Unificada</span>
+                    </div>
+                    <span class="bg-sky-500/20 text-sky-400 text-xs px-2 py-0.5 rounded-full font-semibold">12</span>
+                </button>
+
+                <button onclick="switchTab('simulator')" id="nav-simulator" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <i class="ph-duotone ph-robot text-lg"></i>
+                    <span>Simulador de IA (RAG)</span>
+                </button>
+
+                <button onclick="switchTab('knowledge')" id="nav-knowledge" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <i class="ph-duotone ph-books text-lg"></i>
+                    <span>Base de Conhecimento</span>
+                </button>
+
+                <button onclick="switchTab('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
+                    <i class="ph-duotone ph-sliders text-lg"></i>
+                    <span>Configurações & Prompt</span>
+                </button>
+            </nav>
+
+            <!-- User Info / Status Footer -->
+            <div class="p-4 border-t border-slate-800 bg-slate-900/50 flex items-center gap-3">
+                <div class="relative">
+                    <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white text-sm">
+                        AD
+                    </div>
+                    <span class="w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900 absolute bottom-0 right-0"></span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-white truncate">Agência Atende+ AI</p>
+                    <p class="text-xs text-emerald-400 truncate">IA Operacional 99.8%</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-50 dark:bg-slate-950">
+
+            <!-- TOP NAVBAR -->
+            <header class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 flex items-center justify-between z-10">
+                <div class="flex items-center gap-4">
+                    <h2 id="pageTitle" class="text-xl font-bold text-slate-900 dark:text-white">Dashboard & KPIs Operacionais</h2>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <!-- Status Badge -->
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Motor IA Ativo
+                    </span>
+
+                    <!-- Channel Quick Filter -->
+                    <div class="h-6 w-px bg-slate-200 dark:bg-slate-800"></div>
+
+                    <!-- Theme Toggle -->
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-400">
+                        <i class="ph-bold ph-moon-stars text-lg hidden dark:block"></i>
+                        <i class="ph-bold ph-sun text-lg block dark:hidden"></i>
+                    </button>
+
+                    <!-- Notifications -->
+                    <button class="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-400">
+                        <i class="ph-bold ph-bell text-lg"></i>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-sky-500 rounded-full"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- TAB CONTENT CONTAINER -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
+
+                <!-- 1. DASHBOARD & KPIS TAB -->
+                <div id="tab-dashboard" class="space-y-6">
+                    <!-- KPI Cards Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">CSAT (Satisfação)</p>
+                                    <h3 class="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">98.4%</h3>
+                                </div>
+                                <div class="p-3 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 rounded-xl">
+                                    <i class="ph-bold ph-smiley text-2xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-xs text-emerald-600 dark:text-emerald-400 font-semibold gap-1">
+                                <i class="ph-bold ph-arrow-up-right"></i>
+                                <span>+2.3% vs mês anterior</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Resolução Automática</p>
+                                    <h3 class="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">91.2%</h3>
+                                </div>
+                                <div class="p-3 bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 rounded-xl">
+                                    <i class="ph-bold ph-robot text-2xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-xs text-emerald-600 dark:text-emerald-400 font-semibold gap-1">
+                                <i class="ph-bold ph-arrow-up-right"></i>
+                                <span>Apenas 8.8% transbordo humano</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tempo Médio Resposta</p>
+                                    <h3 class="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">4.2s</h3>
+                                </div>
+                                <div class="p-3 bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-xl">
+                                    <i class="ph-bold ph-clock-afternoon text-2xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-xs text-emerald-600 dark:text-emerald-400 font-semibold gap-1">
+                                <i class="ph-bold ph-lightning"></i>
+                                <span>Atendimento instantâneo</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Atendimentos no Mês</p>
+                                    <h3 class="text-3xl font-extrabold text-slate-900 dark:text-white mt-1">3,480</h3>
+                                </div>
+                                <div class="p-3 bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 rounded-xl">
+                                    <i class="ph-bold ph-chats-teardrop text-2xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center text-xs text-sky-600 dark:text-sky-400 font-semibold gap-1">
+                                <i class="ph-bold ph-trend-up"></i>
+                                <span>Economia estimada: R$ 4.200</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Volume Chart -->
+                        <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <i class="ph-bold ph-chart-bar text-sky-500"></i> Volume de Atendimentos por Canal
+                                </h4>
+                                <span class="text-xs text-slate-400">Últimos 7 dias</span>
+                            </div>
+                            <div class="h-64">
+                                <canvas id="volumeChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Channel Distribution -->
+                        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                    <i class="ph-bold ph-pie-chart text-sky-500"></i> Distribuição por Origem
+                                </h4>
+                            </div>
+                            <div class="h-52 relative flex items-center justify-center">
+                                <canvas id="channelPieChart"></canvas>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 mt-4 text-xs font-medium">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span> WhatsApp (52%)
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-amber-400"></span> Mercado Livre (28%)
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-orange-500"></span> Shopee (14%)
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-sky-500"></span> Web Chat (6%)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. UNIFIED INBOX TAB -->
+                <div id="tab-inbox" class="hidden h-[calc(100vh-7rem)] flex rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
+                    <!-- Conversations List -->
+                    <div class="w-80 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-slate-50/50 dark:bg-slate-900/50">
+                        <div class="p-3 border-b border-slate-200 dark:border-slate-800 space-y-2">
+                            <div class="relative">
+                                <i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
+                                <input type="text" placeholder="Buscar cliente ou pedido..." class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            </div>
+                            <div class="flex gap-1 overflow-x-auto text-[11px] font-semibold text-slate-500">
+                                <button class="px-2.5 py-1 rounded-md bg-sky-600 text-white">Todos</button>
+                                <button class="px-2.5 py-1 rounded-md bg-white dark:bg-slate-800 hover:bg-slate-100">WhatsApp</button>
+                                <button class="px-2.5 py-1 rounded-md bg-white dark:bg-slate-800 hover:bg-slate-100">M. Livre</button>
+                                <button class="px-2.5 py-1 rounded-md bg-white dark:bg-slate-800 hover:bg-slate-100">Shopee</button>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-slate-100 dark:divide-slate-800/50">
+                            <!-- Conv 1 -->
+                            <div class="p-3 bg-sky-50/60 dark:bg-sky-950/20 border-l-4 border-sky-500 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
+                                <div class="flex justify-between items-start mb-1">
+                                    <div class="flex items-center gap-1.5">
+                                        <i class="ph-fill ph-whatsapp-logo text-emerald-500 text-sm"></i>
+                                        <span class="font-bold text-xs text-slate-900 dark:text-white">Mariana Silva</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400">10:42</span>
+                                </div>
+                                <p class="text-xs text-slate-600 dark:text-slate-300 truncate">Gostaria de saber se a jaqueta jeans P serve para altura 1,65m?</p>
+                                <div class="mt-2 flex items-center justify-between">
+                                    <span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 font-medium">IA Respondeu</span>
+                                    <span class="text-[10px] text-slate-400">Pré-venda</span>
+                                </div>
+                            </div>
+
+                            <!-- Conv 2 -->
+                            <div class="p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
+                                <div class="flex justify-between items-start mb-1">
+                                    <div class="flex items-center gap-1.5">
+                                        <i class="ph-fill ph-shopping-bag text-amber-500 text-sm"></i>
+                                        <span class="font-bold text-xs text-slate-900 dark:text-white">Carlos Eduardo (ML)</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400">09:15</span>
+                                </div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 truncate">Qual o código de rastreamento do pedido #MLB94829?</p>
+                                <div class="mt-2 flex items-center justify-between">
+                                    <span class="px-2 py-0.5 rounded text-[10px] bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300 font-medium">Rastreio Enviado</span>
+                                    <span class="text-[10px] text-slate-400">Pós-venda</span>
+                                </div>
+                            </div>
+
+                            <!-- Conv 3 (Transbordo Humano) -->
+                            <div class="p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 transition bg-amber-50/40 dark:bg-amber-950/10">
+                                <div class="flex justify-between items-start mb-1">
+                                    <div class="flex items-center gap-1.5">
+                                        <i class="ph-fill ph-storefront text-orange-500 text-sm"></i>
+                                        <span class="font-bold text-xs text-slate-900 dark:text-white">Fernanda Lima (Shopee)</span>
+                                    </div>
+                                    <span class="text-[10px] text-slate-400">Ontem</span>
+                                </div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 truncate">Preciso trocar o produto que veio com defeito no zíper.</p>
+                                <div class="mt-2 flex items-center justify-between">
+                                    <span class="px-2 py-0.5 rounded text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 font-semibold flex items-center gap-1">
+                                        <i class="ph-bold ph-warning"></i> Solicitou Humano
+                                    </span>
+                                    <span class="text-[10px] text-slate-400">Trocas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conversation Detailed Area -->
+                    <div class="flex-1 flex flex-col bg-white dark:bg-slate-900">
+                        <!-- Chat Header -->
+                        <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-sm">
+                                    MS
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                                        Mariana Silva
+                                        <span class="text-xs font-normal text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">Via WhatsApp API</span>
+                                    </h3>
+                                    <p class="text-xs text-slate-500">Cliente Recorrente • 3 compras realizadas</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button class="px-3 py-1.5 text-xs font-medium bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition flex items-center gap-1">
+                                    <i class="ph-bold ph-hand-pointing"></i> Assumir Atendimento
+                                </button>
+                                <button class="p-2 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
+                                    <i class="ph-bold ph-dots-three-vertical"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Chat Messages Container -->
+                        <div class="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-100/40 dark:bg-slate-950/50 custom-scrollbar">
+                            <div class="text-center">
+                                <span class="text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-500 px-3 py-1 rounded-full">Hoje, 10:40</span>
+                            </div>
+
+                            <!-- Customer Message -->
+                            <div class="flex gap-3 max-w-[80%]">
+                                <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none border border-slate-200 dark:border-slate-700 shadow-sm">
+                                    <p class="text-xs text-slate-800 dark:text-slate-200">Olá! Gostaria de saber se a jaqueta jeans tamanho P serve bem para quem tem 1,65m de altura e 58kg?</p>
+                                    <span class="text-[9px] text-slate-400 mt-1 block text-right">10:41</span>
+                                </div>
+                            </div>
+
+                            <!-- AI Thought / RAG Lookup Log (Visible for Admins) -->
+                            <div class="mx-auto my-2 max-w-md bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/50 rounded-xl p-2.5 text-[11px] text-sky-800 dark:text-sky-300">
+                                <div class="flex items-center gap-1.5 font-semibold mb-1">
+                                    <i class="ph-bold ph-cpu text-sky-500 animate-spin"></i> Contexto RAG Consultado pela IA:
+                                </div>
+                                <p class="text-[10px] opacity-90">Busca no catálogo: "Jaqueta Jeans Oversized" → Tabela de medidas encontrada: P veste altura 1,60m-1,68m, peso 55kg-62kg. Estoque: 8 unidades.</p>
+                            </div>
+
+                            <!-- AI Response -->
+                            <div class="flex gap-3 max-w-[80%] ml-auto flex-row-reverse">
+                                <div class="bg-sky-600 text-white p-3 rounded-2xl rounded-tr-none shadow-sm">
+                                    <div class="flex items-center gap-1 text-[10px] text-sky-200 font-semibold mb-1">
+                                        <i class="ph-bold ph-robot"></i> OmniAI (Atendimento Encantador)
+                                    </div>
+                                    <p class="text-xs leading-relaxed">Olá Mariana! ✨ Sim, o tamanho **P** vai ficar perfeito em você! Ele é ideal para altura entre 1,60m e 1,68m. Como a modelagem é levemente oversized, fica super confortável e elegante. Temos apenas 8 unidades no estoque com envio hoje mesmo!</p>
+                                    <span class="text-[9px] text-sky-200 mt-1 block text-right">10:42</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Input Box -->
+                        <div class="p-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                            <div class="flex items-center gap-2">
+                                <input type="text" placeholder="Digite uma mensagem ou insira sugestão da IA..." class="flex-1 bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <button class="p-2 bg-sky-600 text-white rounded-xl hover:bg-sky-700 transition">
+                                    <i class="ph-bold ph-paper-plane-right text-base"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. AI SIMULATOR (RAG & HANDOFF TESTING) -->
+                <div id="tab-simulator" class="hidden space-y-6">
+                    <div class="bg-gradient-to-r from-sky-900 to-indigo-900 rounded-2xl p-6 text-white shadow-lg">
+                        <div class="max-w-2xl">
+                            <h3 class="text-xl font-bold flex items-center gap-2">
+                                <i class="ph-bold ph-flask text-sky-400"></i> Playground de Testes da IA em Tempo Real
+                            </h3>
+                            <p class="text-xs text-sky-200 mt-1 leading-relaxed">
+                                Teste aqui como a sua Inteligência Artificial reage às dúvidas dos clientes antes de colocá-la em produção. A IA consulta automaticamente a **Base de Dados RAG** e simula o fluxo de pós-venda e encantamento.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Chat Simulator Box -->
+                        <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col h-[520px] shadow-sm">
+                            <!-- Simulator Header -->
+                            <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span class="font-bold text-xs text-slate-800 dark:text-slate-200">Simulador de Atendimento (Cliente Fictício)</span>
+                                </div>
+                                <button onclick="resetSimulation()" class="text-xs text-slate-500 hover:text-sky-600 flex items-center gap-1 font-medium">
+                                    <i class="ph-bold ph-arrow-counter-clockwise"></i> Reiniciar Conversa
+                                </button>
+                            </div>
+
+                            <!-- Simulator Messages -->
+                            <div id="simMessages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/30 dark:bg-slate-950/30 custom-scrollbar">
+                                <div class="text-center my-2">
+                                    <span class="text-[10px] bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 px-3 py-1 rounded-full font-medium">
+                                        Modo Simulação Ativo • IA conectada ao Catálogo RAG
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Quick Prompts Buttons -->
+                            <div class="px-4 py-2 bg-slate-100 dark:bg-slate-800/40 border-t border-slate-200 dark:border-slate-800 flex gap-2 overflow-x-auto text-xs">
+                                <span class="text-[11px] text-slate-400 flex items-center font-medium">Testar:</span>
+                                <button onclick="sendSimQuick('Qual o prazo de troca para vestuário?')" class="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px] hover:border-sky-500 whitespace-nowrap">
+                                    Política de Troca
+                                </button>
+                                <button onclick="sendSimQuick('Onde está meu pedido #9482?')" class="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px] hover:border-sky-500 whitespace-nowrap">
+                                    Rastreio de Pedido
+                                </button>
+                                <button onclick="sendSimQuick('Quero falar com um atendente humano agora!')" class="px-2.5 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px] hover:border-sky-500 whitespace-nowrap text-amber-600">
+                                    Transbordo Humano
+                                </button>
+                            </div>
+
+                            <!-- Input Box -->
+                            <div class="p-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex gap-2">
+                                <input type="text" id="simInput" placeholder="Simule uma mensagem do cliente..." class="flex-1 bg-slate-100 dark:bg-slate-800 border-none rounded-xl px-4 py-2 text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <button onclick="sendSimMessage()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-medium rounded-xl text-xs flex items-center gap-1 transition">
+                                    <span>Enviar</span>
+                                    <i class="ph-bold ph-paper-plane-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Real-time IA Diagnostic Panel -->
+                        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-4 flex items-center gap-2">
+                                    <i class="ph-bold ph-activity text-sky-500"></i> Diagnóstico da Resposta da IA
+                                </h4>
+
+                                <div class="space-y-4 text-xs">
+                                    <div>
+                                        <label class="text-slate-500 block mb-1">Nível de Confiança da IA</label>
+                                        <div class="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                                            <div id="simConfidenceBar" class="bg-emerald-500 h-full w-[96%] transition-all duration-300"></div>
+                                        </div>
+                                        <span id="simConfidenceVal" class="text-[10px] text-emerald-600 font-bold mt-1 block">96% (Alta Confiança)</span>
+                                    </div>
+
+                                    <div>
+                                        <label class="text-slate-500 block mb-1">Análise de Sentimento do Cliente</label>
+                                        <span id="simSentiment" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-semibold">
+                                            <i class="ph-bold ph-smiley"></i> Positivo / Neutro
+                                        </span>
+                                    </div>
+
+                                    <div>
+                                        <label class="text-slate-500 block mb-1">Fontes RAG Recuperadas</label>
+                                        <div id="simRagSources" class="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-lg text-[11px] text-slate-600 dark:text-slate-300 font-mono space-y-1">
+                                            <div>• FAQ_Trocas_Politica.pdf</div>
+                                            <div>• Catalogo_Moda_2026.json</div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="text-slate-500 block mb-1">Ação Executada</label>
+                                        <span id="simActionExecuted" class="text-slate-700 dark:text-slate-200 font-medium">Geração de Resposta Direta</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 p-3 bg-sky-50 dark:bg-sky-950/30 rounded-xl border border-sky-200 dark:border-sky-800 text-[11px] text-sky-800 dark:text-sky-300">
+                                <i class="ph-bold ph-info"></i> Se o cliente demonstrar irritação ou pedir humano, o indicador acionará o <strong>Transbordo Automático</strong>.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. BASE DE CONHECIMENTO (KNOWLEDGE BASE / RAG) -->
+                <div id="tab-knowledge" class="hidden space-y-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Base de Conhecimento RAG do Lojista</h3>
+                            <p class="text-xs text-slate-500">Cadastre tabelas de frete, regras da loja e FAQs para a IA responder com precisão.</p>
+                        </div>
+                        <button onclick="openKnowledgeModal()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold rounded-xl flex items-center gap-2">
+                            <i class="ph-bold ph-plus"></i> Adicionar Documento / FAQ
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="p-2.5 bg-sky-100 dark:bg-sky-950 text-sky-600 rounded-xl">
+                                    <i class="ph-bold ph-file-text text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-900 dark:text-white">Política de Frete & Entrega</h4>
+                                    <span class="text-[10px] text-slate-400">Indexado há 2 dias</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">Contém prazos para regiões Sul/Sudeste, regras de frete grátis acima de R$ 199 e transportadoras parceiras.</p>
+                            <div class="flex justify-between items-center text-xs border-t border-slate-100 dark:border-slate-800 pt-3">
+                                <span class="text-emerald-600 dark:text-emerald-400 font-semibold text-[10px]">● Ativo na IA</span>
+                                <button class="text-slate-400 hover:text-slate-600"><i class="ph-bold ph-pencil"></i> Editar</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="p-2.5 bg-indigo-100 dark:bg-indigo-950 text-indigo-600 rounded-xl">
+                                    <i class="ph-bold ph-arrows-clockwise text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-900 dark:text-white">Trocas e Devoluções</h4>
+                                    <span class="text-[10px] text-slate-400">Indexado hoje</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">Direito de arrependimento em 7 dias, produto com defeito em até 30 dias. Código de postagem de logística reversa.</p>
+                            <div class="flex justify-between items-center text-xs border-t border-slate-100 dark:border-slate-800 pt-3">
+                                <span class="text-emerald-600 dark:text-emerald-400 font-semibold text-[10px]">● Ativo na IA</span>
+                                <button class="text-slate-400 hover:text-slate-600"><i class="ph-bold ph-pencil"></i> Editar</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="p-2.5 bg-amber-100 dark:bg-amber-950 text-amber-600 rounded-xl">
+                                    <i class="ph-bold ph-ruler text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-900 dark:text-white">Tabela de Medidas Geral</h4>
+                                    <span class="text-[10px] text-slate-400">Indexado há 1 semana</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">Dimensões de busto, cintura e quadril para vestuário feminino P, M, G, GG.</p>
+                            <div class="flex justify-between items-center text-xs border-t border-slate-100 dark:border-slate-800 pt-3">
+                                <span class="text-emerald-600 dark:text-emerald-400 font-semibold text-[10px]">● Ativo na IA</span>
+                                <button class="text-slate-400 hover:text-slate-600"><i class="ph-bold ph-pencil"></i> Editar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. CONFIGURAÇÕES & PROMPT DA IA -->
+                <div id="tab-settings" class="hidden space-y-6">
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-6">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
+                            Personalização da Inteligência Artificial
+                        </h3>
+
+                        <!-- Prompt Tone Selection -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Tom de Voz do Atendimento</label>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <label class="p-3 border-2 border-sky-500 rounded-xl bg-sky-50/50 dark:bg-sky-950/20 cursor-pointer flex items-center gap-3">
+                                    <input type="radio" name="tone" checked class="text-sky-600">
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-900 dark:text-white">Encantador & Empático</p>
+                                        <p class="text-[10px] text-slate-500">Usa emojis moderados, cordial e caloroso.</p>
+                                    </div>
+                                </label>
+                                <label class="p-3 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer flex items-center gap-3">
+                                    <input type="radio" name="tone" class="text-sky-600">
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-900 dark:text-white">Direto & Objetivo</p>
+                                        <p class="text-[10px] text-slate-500">Focado em respostas rápidas e concisas.</p>
+                                    </div>
+                                </label>
+                                <label class="p-3 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer flex items-center gap-3">
+                                    <input type="radio" name="tone" class="text-sky-600">
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-900 dark:text-white">Formal & Técnico</p>
+                                        <p class="text-[10px] text-slate-500">Linguagem corporativa rigorosa.</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- System Prompt Customization -->
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-slate-700 dark:text-slate-300">Prompt do Sistema (Instruções Principais)</label>
+                            <textarea rows="4" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-xs text-slate-800 dark:text-slate-200 font-mono focus:ring-2 focus:ring-sky-500 focus:outline-none">Você é o assistente virtual encantador da loja. Seu objetivo principal é responder dúvidas com simpatia, fidelizar o cliente e impulsionar vendas. Sempre consulte a base de conhecimento de produtos antes de responder. Se o cliente solicitar um humano ou estiver muito insatisfeito, acione o transbordo imediatamente.</textarea>
+                        </div>
+
+                        <!-- Webhook Integrations -->
+                        <div class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                            <h4 class="text-sm font-bold text-slate-900 dark:text-white">Canais Conectados (Webhooks API)</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="p-4 border border-slate-200 dark:border-slate-800 rounded-xl flex justify-between items-center">
+                                    <div class="flex items-center gap-3">
+                                        <i class="ph-fill ph-whatsapp-logo text-2xl text-emerald-500"></i>
+                                        <div>
+                                            <p class="text-xs font-bold text-slate-900 dark:text-white">WhatsApp Business API</p>
+                                            <p class="text-[10px] text-emerald-600 font-semibold">Conectado (Evolution API)</p>
+                                        </div>
+                                    </div>
+                                    <button class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-medium rounded-lg">Configurar</button>
+                                </div>
+
+                                <div class="p-4 border border-slate-200 dark:border-slate-800 rounded-xl flex justify-between items-center">
+                                    <div class="flex items-center gap-3">
+                                        <i class="ph-fill ph-shopping-bag text-2xl text-amber-400"></i>
+                                        <div>
+                                            <p class="text-xs font-bold text-slate-900 dark:text-white">Mercado Livre API</p>
+                                            <p class="text-[10px] text-emerald-600 font-semibold">Mensagens & Perguntas Ativas</p>
+                                        </div>
+                                    </div>
+                                    <button class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-xs font-medium rounded-lg">Configurar</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-4">
+                            <button onclick="saveSettings()" class="px-6 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-sky-600/30 transition">
+                                Salvar Alterações
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Dark Mode Toggle Logic
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            // Hide all tabs
+            ['dashboard', 'inbox', 'simulator', 'knowledge', 'settings'].forEach(id => {
+                const el = document.getElementById(`tab-${id}`);
+                const nav = document.getElementById(`nav-${id}`);
+                if (el) el.classList.add('hidden');
+                if (nav) {
+                    nav.classList.remove('bg-sky-600', 'text-white');
+                    nav.classList.add('text-slate-400');
+                }
+            });
+
+            // Show selected tab
+            const targetTab = document.getElementById(`tab-${tabId}`);
+            const targetNav = document.getElementById(`nav-${tabId}`);
+            if (targetTab) targetTab.classList.remove('hidden');
+            if (targetNav) {
+                targetNav.classList.add('bg-sky-600', 'text-white');
+                targetNav.classList.remove('text-slate-400');
+            }
+
+            // Update Header Title
+            const titles = {
+                'dashboard': 'Dashboard & KPIs Operacionais',
+                'inbox': 'Caixa de Entrada Unificada (Omnichannel)',
+                'simulator': 'Simulador de Atendimento com IA (RAG)',
+                'knowledge': 'Base de Conhecimento do Lojista',
+                'settings': 'Configurações do Agente & Conectores'
+            };
+            document.getElementById('pageTitle').innerText = titles[tabId] || 'OmniAI';
+        }
+
+        // AI Simulator Logic
+        function sendSimMessage() {
+            const input = document.getElementById('simInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            appendSimUserMessage(msg);
+            input.value = '';
+            processAiSimulation(msg);
+        }
+
+        function sendSimQuick(text) {
+            appendSimUserMessage(text);
+            processAiSimulation(text);
+        }
+
+        function appendSimUserMessage(text) {
+            const container = document.getElementById('simMessages');
+            const div = document.createElement('div');
+            div.className = "flex gap-3 max-w-[80%] ml-auto flex-row-reverse";
+            div.innerHTML = `
+                <div class="bg-slate-800 text-white p-3 rounded-2xl rounded-tr-none text-xs shadow-sm">
+                    <p>${text}</p>
+                    <span class="text-[9px] text-slate-400 mt-1 block text-right">Agora</span>
+                </div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function processAiSimulation(userText) {
+            const container = document.getElementById('simMessages');
+            const textLower = userText.toLowerCase();
+
+            // Dynamic Response & Diagnostic Updates based on simulated logic
+            let responseText = "";
+            let confidence = "96%";
+            let sentiment = "Positivo / Neutro";
+            let sentimentClass = "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300";
+            let action = "Geração de Resposta Direta (RAG)";
+            let sources = "• Catalogo_Produtos.json<br>• FAQ_Geral.pdf";
+
+            if (textLower.includes("troca") || textLower.includes("devoluç")) {
+                responseText = "Nossa política de troca garante até **7 dias** após o recebimento sem custos adicionais! O produto precisa estar com etiqueta intacta. Quer que eu gere a etiqueta de devolução agora?";
+            } else if (textLower.includes("rastreio") || textLower.includes("pedido")) {
+                responseText = "Consultei seu pedido **#9482**! Ele já foi despachado via Jadlog e a previsão de entrega é amanhã até às 18h. Código de rastreio: `BR948201928X`.";
+                sources = "• API_Integração_Rastreio.json";
+            } else if (textLower.includes("humano") || textLower.includes("atendente") || textLower.includes("reclamaç")) {
+                responseText = "Compreendo perfeitamente! Estou transferindo seu atendimento para um de nossos atendentes especialistas agora mesmo. Por favor, aguarde alguns instantes na linha. 👨‍💻";
+                confidence = "45% (Transbordo Solicitado)";
+                sentiment = "⚠️ Crítico / Insatisfeito";
+                sentimentClass = "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300";
+                action = "🚨 TRANSBORDO HUMANO ACIONADO";
+            } else {
+                responseText = "Olá! Como posso ajudar você a ter uma excelente experiência de compra na nossa loja hoje? ✨";
+            }
+
+            // Simulate AI Delay
+            setTimeout(() => {
+                const div = document.createElement('div');
+                div.className = "flex gap-3 max-w-[80%]";
+                div.innerHTML = `
+                    <div class="bg-sky-600 text-white p-3 rounded-2xl rounded-tl-none text-xs shadow-sm">
+                        <div class="flex items-center gap-1 text-[10px] text-sky-200 font-semibold mb-1">
+                            <i class="ph-bold ph-robot"></i> OmniAI
+                        </div>
+                        <p>${responseText}</p>
+                        <span class="text-[9px] text-sky-200 mt-1 block text-right">Agora</span>
+                    </div>
+                `;
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+
+                // Update Diagnostics
+                document.getElementById('simConfidenceVal').innerText = confidence;
+                document.getElementById('simSentiment').className = `inline-flex items-center gap-1 px-2.5 py-1 rounded-md font-semibold ${sentimentClass}`;
+                document.getElementById('simSentiment').innerHTML = sentiment;
+                document.getElementById('simActionExecuted').innerText = action;
+                document.getElementById('simRagSources').innerHTML = sources;
+            }, 600);
+        }
+
+        function resetSimulation() {
+            const container = document.getElementById('simMessages');
+            container.innerHTML = `
+                <div class="text-center my-2">
+                    <span class="text-[10px] bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 px-3 py-1 rounded-full font-medium">
+                        Modo Simulação Reiniciado
+                    </span>
+                </div>
+            `;
+        }
+
+        function saveSettings() {
+            alert('Configurações e prompt salvos com sucesso!');
+        }
+
+        function openKnowledgeModal() {
+            alert('Formulário de upload de arquivos (PDF, CSV, TXT) para indexação RAG.');
+        }
+
+        // Initialize Charts on Window Load
+        window.onload = function() {
+            // Chart 1: Volume Bar Chart
+            const ctxVolume = document.getElementById('volumeChart').getContext('2d');
+            new Chart(ctxVolume, {
+                type: 'bar',
+                data: {
+                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                    datasets: [
+                        {
+                            label: 'IA (Automático)',
+                            data: [420, 510, 480, 600, 550, 390, 310],
+                            backgroundColor: '#0284c7',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Transbordo Humano',
+                            data: [40, 45, 30, 52, 41, 28, 20],
+                            backgroundColor: '#f59e0b',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        x: { stacked: true, grid: { display: false } },
+                        y: { stacked: true, grid: { color: '#e2e8f0' } }
+                    }
+                }
+            });
+
+            // Chart 2: Channel Pie Chart
+            const ctxPie = document.getElementById('channelPieChart').getContext('2d');
+            new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['WhatsApp', 'Mercado Livre', 'Shopee', 'Web Chat'],
+                    datasets: [{
+                        data: [52, 28, 14, 6],
+                        backgroundColor: ['#25D366', '#FFE600', '#EE4D2D', '#0284c7'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '75%'
+                }
+            });
+        };
+    </script>
+</body>
+</html>
